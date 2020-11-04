@@ -51,7 +51,11 @@ document.addEventListener("DOMContentLoaded", function() {
         })
 
         const likeButton = document.createElement('button')
-        likeButton.innerText = "LIKE"
+        if (book.users.findIndex(user => user.id === 1) >= 0) {
+            likeButton.innerText = "UNLIKE"
+        } else {
+            likeButton.innerText = "LIKE"
+        }
         likeButton.addEventListener('click', (e) => {
             handleLike(book, e)
         })
@@ -61,12 +65,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function handleLike(book, e) {
         let currentLikers = book.users
-        const likeToggle = {
-            "LIKE":"UNLIKE",
-            "UNLIKE":"LIKE"
+        const index = book.users.findIndex(user => user.id === 1)
+        console.log(index, book.users)
+        if (index >= 0) {
+            currentLikers.splice(index, 1)
+            console.log('spliced...', currentLikers)
+        } else {
+            currentLikers.push({"id":1, "username":"pouros"})
         }
-        e.target.innerText = likeToggle[e.target.innerText]
-        currentLikers.push({"id":1, "username":"pouros"})
         fetch(BOOKURL+`/${book.id}`, {
             method: 'PATCH',
             headers: {
@@ -76,7 +82,9 @@ document.addEventListener("DOMContentLoaded", function() {
             body: JSON.stringify({users: currentLikers})
         })
         .then(resp => resp.json())
-        .then(book => handleShowBook(book))
+        .then(book => {
+            handleShowBook(book)
+        })
     }
 
     function init() {
